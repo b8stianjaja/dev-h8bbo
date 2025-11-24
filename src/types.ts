@@ -27,37 +27,37 @@ export interface Entity {
   // Logical State (Grid)
   gridPosition: GridPosition; 
   rotation: Direction;
-  height: number; // z-height (for sitting/stacking)
+  height: number;
   
   // Movement State
-  path: GridPosition[]; // Queue of future tiles
+  path: GridPosition[];
   isWalking: boolean;
   isSitting: boolean;
   
-  // Visual Interpolation State
+  // Interpolation State (Decoupled from render loop)
   previousGridPosition: GridPosition;
   nextGridPosition: GridPosition;
-  moveProgress: number; // 0.0 to 1.0
+  lastMoveStart: number; // Timestamp of the last logic tick
   
   // Appearance
   color: string;
 }
 
-export type FurnitureType = 'chair_basic' | 'table_wood' | 'lamp_tall';
+export type FurnitureType = 'chair_basic' | 'table_wood' | 'lamp_tall' | 'neon_tube';
 
 export interface FurnitureItem {
   id: string;
   type: FurnitureType;
   position: GridPosition;
-  rotation: Direction; // Usually 0, 2, 4, 6 for furniture
-  state: number; // Interaction state
+  rotation: Direction;
+  state: number;
   canSit: boolean;
   canWalk: boolean;
   canStack: boolean;
 }
 
 export interface RoomState {
-  tiles: number[][]; // 0 or 1
+  tiles: number[][];
   furniture: FurnitureItem[];
   entities: Entity[];
 }

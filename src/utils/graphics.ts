@@ -15,49 +15,40 @@ const addNoise = (ctx: CanvasRenderingContext2D, width: number, height: number, 
 };
 
 export const createFloorTexture = (): THREE.CanvasTexture => {
-  const size = 128; // Higher res
+  const size = 512; // High res for crisp lines
   const canvas = document.createElement('canvas');
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext('2d');
   
   if (ctx) {
-    // 1. Marble Base
-    const gradient = ctx.createLinearGradient(0, 0, size, size);
-    gradient.addColorStop(0, COLORS.FLOOR_BASE);
-    gradient.addColorStop(1, COLORS.FLOOR_HIGHLIGHT);
-    ctx.fillStyle = gradient;
+    // 1. Dark Neon Base
+    ctx.fillStyle = COLORS.FLOOR_BASE;
     ctx.fillRect(0, 0, size, size);
 
-    // 2. Marble Veins
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-    ctx.lineWidth = 2;
-    for(let i=0; i<5; i++) {
-        ctx.beginPath();
-        ctx.moveTo(Math.random() * size, 0);
-        ctx.bezierCurveTo(Math.random()*size, size/2, Math.random()*size, size/2, Math.random()*size, size);
-        ctx.stroke();
-    }
-
-    // 3. Tile Border (Bevel)
-    const border = 4;
-    // Highlight Top/Left
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-    ctx.fillRect(0, 0, size, border);
-    ctx.fillRect(0, 0, border, size);
+    // 2. Glowing Borders (The Grid)
+    ctx.strokeStyle = '#4c1d95'; // Deep Purple Glow
+    ctx.lineWidth = 8;
+    ctx.strokeRect(0, 0, size, size);
     
-    // Shadow Bottom/Right
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-    ctx.fillRect(0, size - border, size, border);
-    ctx.fillRect(size - border, 0, border, size);
+    // 3. Inner Tile Detail (Subtle reflection)
+    ctx.fillStyle = COLORS.FLOOR_HIGHLIGHT;
+    ctx.fillRect(16, 16, size-32, size-32);
 
-    // 4. Noise for texture
-    addNoise(ctx, size, size, 10);
+    // 4. Center Shine (Radial Gradient for depth)
+    const grad = ctx.createRadialGradient(size/2, size/2, 10, size/2, size/2, size/2);
+    grad.addColorStop(0, 'rgba(139, 92, 246, 0.15)'); // Light purple
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,size,size);
+
+    // 5. Tech Noise
+    addNoise(ctx, size, size, 5);
   }
 
   const texture = new THREE.CanvasTexture(canvas);
-  texture.magFilter = THREE.NearestFilter;
-  texture.minFilter = THREE.NearestFilter;
+  texture.magFilter = THREE.LinearFilter; // Smoother for neon
+  texture.minFilter = THREE.LinearMipMapLinearFilter;
   return texture;
 };
 
@@ -69,47 +60,27 @@ export const createWallTexture = (color: string): THREE.CanvasTexture => {
   const ctx = canvas.getContext('2d');
   
   if (ctx) {
-    // Base Color
+    // Metallic Wall Base
     ctx.fillStyle = color;
     ctx.fillRect(0, 0, size, size);
     
-    // Art Deco Vertical Pattern
-    ctx.fillStyle = 'rgba(0,0,0,0.05)';
-    const stripeWidth = 16;
-    for(let i=0; i<size; i+=stripeWidth*2) {
+    // Cyber Lines
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    const stripeWidth = 4;
+    for(let i=0; i<size; i+=32) {
       ctx.fillRect(i, 0, stripeWidth, size);
     }
 
-    // Top Crown Molding
-    const trimHeight = 12;
-    const gradTop = ctx.createLinearGradient(0, 0, 0, trimHeight);
-    gradTop.addColorStop(0, '#ecf0f1');
-    gradTop.addColorStop(1, '#bdc3c7');
-    ctx.fillStyle = gradTop;
-    ctx.fillRect(0, 0, size, trimHeight);
+    // Top Light Strip
+    ctx.fillStyle = '#60a5fa'; // Blue light strip
+    ctx.fillRect(0, 0, size, 6);
     
-    // Bottom Wainscoting
-    const wainscotHeight = 40;
-    const startY = size - wainscotHeight;
-    
-    // Wainscot Cap
-    ctx.fillStyle = '#555';
-    ctx.fillRect(0, startY, size, 4);
-
-    // Wainscot Body
-    ctx.fillStyle = '#444';
-    ctx.fillRect(0, startY + 4, size, wainscotHeight - 4);
-    
-    // Wainscot Panels
-    ctx.strokeStyle = '#333';
-    ctx.strokeRect(10, startY + 10, size - 20, wainscotHeight - 20);
-
-    // Noise
-    addNoise(ctx, size, size, 5);
+    // Bottom Base
+    ctx.fillStyle = '#111';
+    ctx.fillRect(0, size - 12, size, 12);
   }
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.magFilter = THREE.NearestFilter;
-  texture.minFilter = THREE.NearestFilter;
   return texture;
 };

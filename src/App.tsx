@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Canvas } from '@react-three/fiber';
+import {UJ Canvas } from '@react-three/fiber';
 import { OrthographicCamera, SoftShadows, Html } from '@react-three/drei';
+import { EffectComposer, Bloom, Noise, Vignette, TiltShift2 } from '@react-three/postprocessing';
 import Room from './components/Room';
 import Avatar from './components/Avatar';
 import GameHUD from './components/Interface';
@@ -15,14 +16,12 @@ interface GameSceneProps {
   onLogout: () => void;
 }
 
-// Internal component that lives INSIDE the Canvas context
 const GameScene: React.FC<GameSceneProps> = ({ phase, authData, onLogout }) => {
   const engine = useHabboEngine();
   const [selectedTile, setSelectedTile] = useState<GridPosition | null>(null);
   const [lastMsg, setLastMsg] = useState<{id: string, text: string} | null>(null);
   const [zoom, setZoom] = useState(38);
 
-  // Join Room Effect
   useEffect(() => {
     if (phase === GamePhase.PLAYING && authData && !engine.myEntityId) {
       engine.joinRoom(authData);
@@ -45,17 +44,11 @@ const GameScene: React.FC<GameSceneProps> = ({ phase, authData, onLogout }) => {
     setTimeout(() => setLastMsg(null), 5000);
   };
 
-  const handleZoom = (delta: number) => {
-    setZoom(prev => Math.max(20, Math.min(60, prev + delta)));
-  };
-
   return (
     <>
-      {/* Cinematic Fog for Infinite Void effect */}
-      <fog attach="fog" args={[COLORS.BACKGROUND, 30, 80]} />
       <color attach="background" args={[COLORS.BACKGROUND]} />
 
-      {/* Isometric Camera Setup */}
+      {/* Isometric Camera */}
       <OrthographicCamera 
         makeDefault 
         position={[20, 24, 20]} 
@@ -65,24 +58,35 @@ const GameScene: React.FC<GameSceneProps> = ({ phase, authData, onLogout }) => {
         onUpdate={c => c.lookAt(0, 0, 0)}
       />
 
-      {/* Lighting Setup */}
-      <ambientLight intensity={0.4} color="#aaccff" />
+      {/* Neon Atmospheric Lighting */}
+      <ambientLight intensity={0.2} color="#4c1d95" />
       
+      {/* Main Key Light (Warm) */}
       <directionalLight 
-        position={[-15, 30, 10]} 
+        position={[-10, 20, 5]} 
         intensity={0.8} 
-        color="#ffecd1"
+        color="#c084fc"
         castShadow 
         shadow-mapSize={[2048, 2048]}
-        shadow-bias={-0.0001} 
-        shadow-radius={4}
       >
         <orthographicCamera attach="shadow-camera" args={[-20, 20, 20, -20]} />
       </directionalLight>
 
-      <directionalLight position={[10, 5, -10]} intensity={0.3} color="#4a69bd" />
+      {/* Rim Light (Cold) */}
+      <directionalLight position={[10, 5, -10]} intensity={1.5} color="#38bdf8" />
+      
+      {/* Fill Light (Pink) */}
+      <pointLight position={[10, 10, 10]} intensity={1} color="#ec4899" distance={30} />
 
-      <SoftShadows size={8} samples={16} focus={0.6} />
+      <SoftShadows size={8} samples={16} focus={0.4} />
+
+      {/* Post Processing for the "Alive" look */}
+      <EffectComposer disableNormalPass>
+        <Bloom luminanceThreshold={0.4} mipmapBlur intensity={1.2} radius={0.5} />
+        <Noise opacity={0.04} />
+        <Vignette eskil={false} offset={0.1} darkness={1.1} />
+        <TiltShift2 blur={0.1} />
+      </EffectComposer>
 
       <group position={[-GRID_SIZE/2, 0, -GRID_SIZE/2]}>
          <Room 
@@ -102,10 +106,9 @@ const GameScene: React.FC<GameSceneProps> = ({ phase, authData, onLogout }) => {
          ))}
       </group>
 
-      {/* In-Game HUD via Html overlay inside Canvas */}
       {phase === GamePhase.PLAYING && authData && (
         <Html fullscreen style={{ pointerEvents: 'none' }} zIndexRange={[100, 0]}>
-           <GameHUD onChat={handleChat} userData={authData} onZoom={handleZoom} />
+           <GameHUD onChat={handleChat} userData={authData} onZoom={z => setZoom(p => Math.max(20, Math.min(60, p + z)))} />
         </Html>
       )}
     </>
@@ -119,7 +122,6 @@ const App: React.FC = () => {
   const handleLogin = (data: AuthData) => {
     setAuthData(data);
     setPhase(GamePhase.LOADING);
-    // Fake loading delay
     setTimeout(() => {
       setPhase(GamePhase.PLAYING);
     }, 1500);
@@ -127,25 +129,17 @@ const App: React.FC = () => {
 
   return (
     <div className="app-container">
-      
-      {/* Login Overlay - Only visible when not playing */}
       {phase !== GamePhase.PLAYING && (
         <div className={`login-transition-wrapper ${phase === GamePhase.LOADING ? 'fade-out' : ''}`}>
           <LoginScreen onLogin={handleLogin} />
         </div>
       )}
 
-      {/* Loading Overlay */}
       {phase === GamePhase.LOADING && (
          <div className="loading-overlay">
-            <div className="loading-text">
-              ENTERING HOTEL...
-            </div>
+            <div className="loading-text">CONNECTING NEONVERSE...</div>
          </div>
       )}
-
-      {/* Vignette Overlay */}
-      <div className="vignette-overlay"></div>
 
       <Canvas 
         shadows 

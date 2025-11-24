@@ -29,22 +29,22 @@ const Room: React.FC<RoomProps> = memo(({ collisionMap, furniture, onTileClick, 
   const wallRightTexture = useMemo(() => createWallTexture(COLORS.WALL_RIGHT), []);
 
   const floorMaterial = useMemo(() => new THREE.MeshStandardMaterial({ 
-    map: floorTexture, roughness: 0.8, metalness: 0.1 
+    map: floorTexture, roughness: 0.4, metalness: 0.5 
   }), [floorTexture]);
   
   const wallLeftMaterial = useMemo(() => new THREE.MeshStandardMaterial({ 
-    map: wallLeftTexture, color: '#ffffff', roughness: 0.9 
+    map: wallLeftTexture, color: '#ffffff', roughness: 0.2, metalness: 0.1 
   }), [wallLeftTexture]);
 
   const wallRightMaterial = useMemo(() => new THREE.MeshStandardMaterial({ 
-    map: wallRightTexture, color: '#ffffff', roughness: 0.9 
+    map: wallRightTexture, color: '#ffffff', roughness: 0.2, metalness: 0.1 
   }), [wallRightTexture]);
   
   const wallTopMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: COLORS.WALL_TOP }), []);
-  const baseboardMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: '#555555' }), []);
+  const baseboardMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: '#111' }), []);
 
   const floorGeo = useMemo(() => new THREE.BoxGeometry(TILE_SIZE, 0.05, TILE_SIZE), []);
-  const wallGeo = useMemo(() => new THREE.BoxGeometry(TILE_SIZE, 3.0, TILE_SIZE), []);
+  const wallGeo = useMemo(() => new THREE.BoxGeometry(TILE_SIZE, 3.5, TILE_SIZE), []);
   const baseboardGeo = useMemo(() => new THREE.BoxGeometry(TILE_SIZE + 0.05, 0.15, TILE_SIZE + 0.05), []);
 
   return (
@@ -69,15 +69,12 @@ const Room: React.FC<RoomProps> = memo(({ collisionMap, furniture, onTileClick, 
                   <meshBasicMaterial />
                </mesh>
 
+               {/* Cursor - Lifted to 0.02 to avoid z-fighting */}
                {selection && selection.x === x && selection.y === y && (
                   <group>
-                    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
+                    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}>
                       <planeGeometry args={[TILE_SIZE, TILE_SIZE]} />
                       <primitive object={cursorMaterial} attach="material" transparent depthTest={false} />
-                    </mesh>
-                    <mesh position={[0, 1.5, 0]} rotation={[0, 0, Math.PI]}>
-                        <coneGeometry args={[0.2, 0.5, 4]} />
-                        <meshStandardMaterial color="#fff" emissive="#aaa" />
                     </mesh>
                   </group>
                )}
@@ -86,16 +83,16 @@ const Room: React.FC<RoomProps> = memo(({ collisionMap, furniture, onTileClick, 
         })
       )}
 
-      {/* Render Static Walls at the room boundaries (0 coordinates) */}
+      {/* Render Static Walls at the room boundaries */}
       {Array.from({ length: GRID_SIZE }).map((_, i) => (
          <group key={`w-back-${i}`} position={[i * TILE_SIZE, 0, 0]}>
-            <mesh position={[0, 1.5, 0]} geometry={wallGeo} material={[wallRightMaterial, wallLeftMaterial, wallTopMaterial, wallTopMaterial, wallLeftMaterial, wallRightMaterial]} castShadow receiveShadow />
+            <mesh position={[0, 1.75, 0]} geometry={wallGeo} material={[wallRightMaterial, wallLeftMaterial, wallTopMaterial, wallTopMaterial, wallLeftMaterial, wallRightMaterial]} castShadow receiveShadow />
             <mesh position={[0, 0.075, 0]} geometry={baseboardGeo} material={baseboardMaterial} />
          </group>
       ))}
       {Array.from({ length: GRID_SIZE }).map((_, i) => (
          <group key={`w-left-${i}`} position={[0, 0, i * TILE_SIZE]}>
-             <mesh position={[0, 1.5, 0]} geometry={wallGeo} material={[wallRightMaterial, wallLeftMaterial, wallTopMaterial, wallTopMaterial, wallLeftMaterial, wallRightMaterial]} castShadow receiveShadow />
+             <mesh position={[0, 1.75, 0]} geometry={wallGeo} material={[wallRightMaterial, wallLeftMaterial, wallTopMaterial, wallTopMaterial, wallLeftMaterial, wallRightMaterial]} castShadow receiveShadow />
              <mesh position={[0, 0.075, 0]} geometry={baseboardGeo} material={baseboardMaterial} />
          </group>
       ))}
@@ -103,11 +100,6 @@ const Room: React.FC<RoomProps> = memo(({ collisionMap, furniture, onTileClick, 
       {furniture.map(item => (
         <FurnitureObject key={item.id} item={item} onClick={onFurnitureClick} />
       ))}
-
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[7, -2, 7]} onClick={(e) => e.stopPropagation()} receiveShadow>
-         <planeGeometry args={[100, 100]} />
-         <meshStandardMaterial color="#111" />
-      </mesh>
     </group>
   );
 });

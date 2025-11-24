@@ -1,32 +1,27 @@
-import * as THREE from 'three';
 import { FurnitureItem } from '../types';
 
 // --- ENGINE SETTINGS ---
-export const TICK_RATE_MS = 480; 
+export constZS TICK_RATE_MS = 480; 
 export const TILE_SIZE = 1;
 export const GRID_SIZE = 14;
 
 // --- VISUALS ---
-export const WALL_HEIGHT = 3.2; // Slightly taller for grandeur
+export const WALL_HEIGHT = 3.5; 
 export const WALL_THICKNESS = 0.2;
 
-// Isometric Camera Angles
-export const ISO_ANGLE_Y = Math.PI / 4; 
-export const ISO_ANGLE_X = Math.atan(1 / Math.sqrt(2)); 
-
 export const COLORS = {
-  // Midnight Lounge Palette
-  FLOOR_BASE: '#2c3e50',      // Dark Blue-Grey
-  FLOOR_HIGHLIGHT: '#34495e', // Lighter Blue-Grey
-  FLOOR_SHADOW: '#1a252f',    // Deep Shadow
+  // Neon Cyberpunk Palette
+  FLOOR_BASE: '#0f172a',      // Dark Indigo Void
+  FLOOR_HIGHLIGHT: '#1e293b', 
+  FLOOR_SHADOW: '#020617',    
   
-  WALL_TOP: '#1a1a1a',        // Darkest
-  WALL_LEFT: '#e0e0e0',       // Bright face
-  WALL_RIGHT: '#bdc3c7',      // Dim face
+  WALL_TOP: '#000000',        
+  WALL_LEFT: '#334155',       // Metallic Blue-Grey
+  WALL_RIGHT: '#1e293b',      
   
-  SELECTION: '#e74c3c',       // Vibrant Red for selection cursor
+  SELECTION: '#22d3ee',       // Cyan Glow
   SHADOW: '#000000',
-  BACKGROUND: '#121212',      // Void color
+  BACKGROUND: '#050510',      // Deep Void
 };
 
 // 0 = Walkable, 1 = Wall
