@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrthographicCamera, SoftShadows, Html } from '@react-three/drei';
-import { EffectComposer, Bloom, Noise, Vignette, TiltShift2 } from '@react-three/postprocessing';
+import { OrthographicCamera, Html } from '@react-three/drei';
+// Removed SoftShadows for performance
+import { EffectComposer, Bloom, Noise, Vignette } from '@react-three/postprocessing';
 import Room from './components/Room';
 import Avatar from './components/Avatar';
 import GameHUD from './components/Interface';
@@ -24,12 +25,9 @@ const GameScene: React.FC<GameSceneProps> = ({ phase, authData, onLogout }) => {
   const joinedRef = useRef(false);
 
   useEffect(() => {
-    // Only join once when entering PLAYING phase
     if (phase === GamePhase.PLAYING && authData && !engine.myEntityId && !joinedRef.current) {
       joinedRef.current = true;
       const id = engine.joinRoom(authData);
-      
-      // Auto-move on enter
       setTimeout(() => {
          engine.moveEntity(id, { x: 10, y: 8 });
       }, 800);
@@ -56,7 +54,6 @@ const GameScene: React.FC<GameSceneProps> = ({ phase, authData, onLogout }) => {
     <>
       <color attach="background" args={[COLORS.BACKGROUND]} />
 
-      {/* Isometric Camera */}
       <OrthographicCamera 
         makeDefault 
         position={[20, 24, 20]} 
@@ -66,35 +63,28 @@ const GameScene: React.FC<GameSceneProps> = ({ phase, authData, onLogout }) => {
         onUpdate={c => c.lookAt(0, 0, 0)}
       />
 
-      {/* Neon Atmospheric Lighting */}
       <ambientLight intensity={0.2} color="#4c1d95" />
       
-      {/* Main Key Light (Warm) */}
+      {/* Optimized Light: Reduced map size, removed SoftShadows */}
       <directionalLight 
         position={[-10, 20, 5]} 
         intensity={0.8} 
         color="#c084fc"
         castShadow 
-        shadow-mapSize={[2048, 2048]}
+        shadow-mapSize={[1024, 1024]} 
+        shadow-bias={-0.0001}
       >
         <orthographicCamera attach="shadow-camera" args={[-20, 20, 20, -20]} />
       </directionalLight>
 
-      {/* Rim Light (Cold) */}
       <directionalLight position={[10, 5, -10]} intensity={1.5} color="#38bdf8" />
-      
-      {/* Fill Light (Pink) */}
       <pointLight position={[10, 10, 10]} intensity={1} color="#ec4899" distance={30} />
 
-      <SoftShadows size={8} samples={16} focus={0.4} />
-
-      {/* Post Processing for the "Alive" look */}
-      {/* FIXED: Changed disableNormalPass to enableNormalPass={false} */}
-      <EffectComposer enableNormalPass={false}>
-        <Bloom luminanceThreshold={0.4} mipmapBlur intensity={1.2} radius={0.5} />
+      {/* Removed TiltShift for cleaner look and higher FPS */}
+      <EffectComposer enableNormalPass={false} multisampling={0}>
+        <Bloom luminanceThreshold={0.5} mipmapBlur intensity={1.0} radius={0.4} />
         <Noise opacity={0.04} />
         <Vignette eskil={false} offset={0.1} darkness={1.1} />
-        <TiltShift2 blur={0.1} />
       </EffectComposer>
 
       <group position={[-GRID_SIZE/2, 0, -GRID_SIZE/2]}>
@@ -106,6 +96,7 @@ const GameScene: React.FC<GameSceneProps> = ({ phase, authData, onLogout }) => {
            selection={selectedTile}
          />
          
+         {/* Avatars are now memoized and lightweight */}
          {engine.entities.map(ent => (
            <Avatar 
              key={ent.id} 
@@ -153,7 +144,7 @@ const App: React.FC = () => {
       <Canvas 
         shadows 
         dpr={[1, 1.5]} 
-        gl={{ antialias: false, stencil: true }} 
+        gl={{ antialias: false, stencil: false, powerPreference: "high-performance" }} 
         className={`game-canvas ${phase === GamePhase.LOGIN ? 'mode-login' : 'mode-playing'}`}
       >
         <GameScene phase={phase} authData={authData} onLogout={() => setPhase(GamePhase.LOGIN)} />
