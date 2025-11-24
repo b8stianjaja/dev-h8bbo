@@ -1,4 +1,4 @@
-import { GridPosition, PathNode } from '../src/types';
+import { GridPosition, PathNode } from '../types';
 
 export const getGridDistance = (a: GridPosition, b: GridPosition) => {
   // Manhattan distance is often better for 4-way, but Diagonal is allowed here

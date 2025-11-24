@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { FurnitureItem } from './types';
+import { FurnitureItem } from '../types';
 
 // --- ENGINE SETTINGS ---
 export const TICK_RATE_MS = 480; 
