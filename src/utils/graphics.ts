@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { COLORS } from '../../constants';
+import { COLORS } from '../constants';
 
 // Helper: Add noise to context
 const addNoise = (ctx: CanvasRenderingContext2D, width: number, height: number, intensity: number) => {

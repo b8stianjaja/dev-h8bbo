@@ -102,7 +102,7 @@ const GameScene: React.FC<GameSceneProps> = ({ phase, authData, onLogout }) => {
          ))}
       </group>
 
-      {/* In-Game HUD via Html overlay inside Canvas (or handle outside if preferred) */}
+      {/* In-Game HUD via Html overlay inside Canvas */}
       {phase === GamePhase.PLAYING && authData && (
         <Html fullscreen style={{ pointerEvents: 'none' }} zIndexRange={[100, 0]}>
            <GameHUD onChat={handleChat} userData={authData} onZoom={handleZoom} />
@@ -126,35 +126,32 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-screen bg-[#121212] relative overflow-hidden">
+    <div className="app-container">
       
       {/* Login Overlay - Only visible when not playing */}
       {phase !== GamePhase.PLAYING && (
-        <div className={`absolute inset-0 z-50 transition-opacity duration-1000 ${phase === GamePhase.LOADING ? 'opacity-0' : 'opacity-100'}`}>
+        <div className={`login-transition-wrapper ${phase === GamePhase.LOADING ? 'fade-out' : ''}`}>
           <LoginScreen onLogin={handleLogin} />
         </div>
       )}
 
       {/* Loading Overlay */}
       {phase === GamePhase.LOADING && (
-         <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-            <div className="text-white font-black text-2xl tracking-widest animate-pulse">
+         <div className="loading-overlay">
+            <div className="loading-text">
               ENTERING HOTEL...
             </div>
          </div>
       )}
 
       {/* Vignette Overlay */}
-      <div className="absolute inset-0 z-10 pointer-events-none" 
-           style={{ background: 'radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,0.6) 100%)' }}>
-      </div>
+      <div className="vignette-overlay"></div>
 
       <Canvas 
         shadows 
         dpr={[1, 1.5]} 
         gl={{ antialias: false, stencil: true }} 
-        // We blur the canvas when in Login mode for cool effect
-        className={`transition-all duration-1000 ${phase === GamePhase.LOGIN ? 'blur-sm scale-110 opacity-50' : 'blur-0 scale-100 opacity-100'}`}
+        className={`game-canvas ${phase === GamePhase.LOGIN ? 'mode-login' : 'mode-playing'}`}
       >
         <GameScene phase={phase} authData={authData} onLogout={() => setPhase(GamePhase.LOGIN)} />
       </Canvas>

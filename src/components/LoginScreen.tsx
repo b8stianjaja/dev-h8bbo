@@ -33,82 +33,69 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-auto">
-      <div className="w-[380px] bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-fade-in-up">
+    <div className="login-overlay">
+      <div className="login-card">
         
         {/* Header */}
-        <div className="h-32 bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 flex flex-col items-center justify-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
-          <h1 className="text-3xl font-black text-white tracking-tighter z-10 drop-shadow-lg">
-            MIDNIGHT <span className="text-blue-400">LOUNGE</span>
-          </h1>
-          <p className="text-xs text-blue-200 uppercase tracking-widest mt-1 z-10 font-bold">Beta Client v0.9</p>
+        <div className="login-header">
+          <h1>MIDNIGHT <span>LOUNGE</span></h1>
+          <p>Beta Client v0.9</p>
         </div>
 
         {/* Content */}
-        <div className="p-8">
+        <div className="login-body">
           {step === 1 ? (
-            <form onSubmit={handleNext} className="flex flex-col gap-4">
+            <form onSubmit={handleNext}>
               <div>
-                <label className="text-[10px] uppercase font-bold text-gray-400 tracking-wider ml-1">Identity</label>
+                <label>Identity</label>
                 <input 
                   type="text" 
                   value={username}
                   onChange={e => setUsername(e.target.value)}
                   placeholder="Enter Username"
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-blue-500 transition-colors mt-1 font-medium"
                   autoFocus
                 />
-                {error && <p className="text-red-400 text-xs mt-2 font-medium">{error}</p>}
+                {error && <p style={{color: '#f87171', fontSize: '0.75rem', marginTop: '0.5rem'}}>{error}</p>}
               </div>
 
-              <button 
-                type="submit"
-                className="w-full bg-white text-black font-bold py-3 rounded-lg hover:bg-gray-200 transition-colors shadow-[0_0_20px_rgba(255,255,255,0.2)] mt-4"
-              >
+              <button type="submit" className="btn-primary">
                 ENTER HOTEL
               </button>
               
-              <div className="text-center mt-4">
-                 <p className="text-gray-500 text-xs">Don't have an account?</p>
-                 <button type="button" className="text-blue-400 text-xs font-bold hover:underline">Register for free</button>
+              <div style={{textAlign: 'center', marginTop: '1rem'}}>
+                 <p style={{color: '#6b7280', fontSize: '0.75rem', margin: 0}}>Don't have an account?</p>
+                 <button type="button" style={{color: '#60a5fa', background: 'none', border: 'none', fontSize: '0.75rem', fontWeight: 'bold', cursor: 'pointer'}}>Register for free</button>
               </div>
             </form>
           ) : (
-            <div className="flex flex-col gap-6 animate-fade-in-down">
-              <div className="text-center">
-                 <h2 className="text-white font-bold text-lg">Choose your Style</h2>
-                 <p className="text-gray-400 text-xs">How will others see you?</p>
+            <div style={{animation: 'fadeInDown 0.6s ease-out'}}>
+              <div style={{textAlign: 'center', marginBottom: '1.5rem'}}>
+                 <h2 style={{fontWeight: 'bold', fontSize: '1.125rem'}}>Choose your Style</h2>
+                 <p style={{color: '#9ca3af', fontSize: '0.75rem'}}>How will others see you?</p>
               </div>
 
-              <div className="grid grid-cols-4 gap-3">
+              <div className="color-grid">
                 {AVATAR_COLORS.map(c => (
                   <button
                     key={c}
                     onClick={() => setSelectedColor(c)}
-                    className={`
-                      w-12 h-12 rounded-full border-2 transition-all transform hover:scale-110
-                      ${selectedColor === c ? 'border-white scale-110 shadow-[0_0_15px_rgba(255,255,255,0.5)]' : 'border-transparent opacity-60 hover:opacity-100'}
-                    `}
+                    className={selectedColor === c ? 'selected' : ''}
                     style={{ backgroundColor: c }}
                   />
                 ))}
               </div>
 
-              <div className="bg-black/40 rounded-lg p-4 flex items-center justify-center h-24 border border-white/5 relative">
+              <div className="avatar-preview">
                  {/* Mini Preview */}
-                 <div className="w-8 h-16 relative">
-                    <div className="absolute top-0 w-8 h-8 rounded-full bg-[#ffccaa] z-20 border border-black/20"></div> {/* Head */}
-                    <div className="absolute top-7 w-10 -left-1 h-8 rounded bg-current z-10" style={{ color: selectedColor }}></div> {/* Body */}
-                    <div className="absolute top-14 w-3 left-0 h-8 bg-gray-800 rounded-b"></div> {/* Leg */}
-                    <div className="absolute top-14 w-3 right-0 h-8 bg-gray-800 rounded-b"></div> {/* Leg */}
+                 <div style={{width: '2rem', height: '4rem', position: 'relative'}}>
+                    <div style={{position: 'absolute', top: 0, width: '2rem', height: '2rem', borderRadius: '50%', background: '#ffccaa', zIndex: 20, border: '1px solid rgba(0,0,0,0.2)'}}></div>
+                    <div style={{position: 'absolute', top: '1.75rem', left: '-0.25rem', width: '2.5rem', height: '2rem', borderRadius: '0.25rem', background: selectedColor, zIndex: 10}}></div>
+                    <div style={{position: 'absolute', top: '3.5rem', left: 0, width: '0.75rem', height: '2rem', background: '#1f2937', borderBottomLeftRadius: '0.25rem'}}></div>
+                    <div style={{position: 'absolute', top: '3.5rem', right: 0, width: '0.75rem', height: '2rem', background: '#1f2937', borderBottomRightRadius: '0.25rem'}}></div>
                  </div>
               </div>
 
-              <button 
-                onClick={handleFinish}
-                className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-500 transition-colors shadow-lg shadow-blue-900/50"
-              >
+              <button onClick={handleFinish} className="btn-action">
                 START PLAYING
               </button>
             </div>
