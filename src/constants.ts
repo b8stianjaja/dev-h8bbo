@@ -1,7 +1,7 @@
-import { FurnitureItem } from '../types';
+import { FurnitureItem } from './types';
 
 // --- ENGINE SETTINGS ---
-export constZS TICK_RATE_MS = 480; 
+export const TICK_RATE_MS = 480; 
 export const TILE_SIZE = 1;
 export const GRID_SIZE = 14;
 

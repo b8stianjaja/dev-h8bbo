@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import {UJ Canvas } from '@react-three/fiber';
+import React, { useState, useEffect, useRef } from 'react';
+import { Canvas } from '@react-three/fiber';
 import { OrthographicCamera, SoftShadows, Html } from '@react-three/drei';
 import { EffectComposer, Bloom, Noise, Vignette, TiltShift2 } from '@react-three/postprocessing';
 import Room from './components/Room';
@@ -21,12 +21,20 @@ const GameScene: React.FC<GameSceneProps> = ({ phase, authData, onLogout }) => {
   const [selectedTile, setSelectedTile] = useState<GridPosition | null>(null);
   const [lastMsg, setLastMsg] = useState<{id: string, text: string} | null>(null);
   const [zoom, setZoom] = useState(38);
+  const joinedRef = useRef(false);
 
   useEffect(() => {
-    if (phase === GamePhase.PLAYING && authData && !engine.myEntityId) {
-      engine.joinRoom(authData);
+    // Only join once when entering PLAYING phase
+    if (phase === GamePhase.PLAYING && authData && !engine.myEntityId && !joinedRef.current) {
+      joinedRef.current = true;
+      const id = engine.joinRoom(authData);
+      
+      // Auto-move on enter
+      setTimeout(() => {
+         engine.moveEntity(id, { x: 10, y: 8 });
+      }, 800);
     }
-  }, [phase, authData]);
+  }, [phase, authData, engine]);
 
   const handleTileClick = (pos: GridPosition) => {
     setSelectedTile(pos);
@@ -81,7 +89,8 @@ const GameScene: React.FC<GameSceneProps> = ({ phase, authData, onLogout }) => {
       <SoftShadows size={8} samples={16} focus={0.4} />
 
       {/* Post Processing for the "Alive" look */}
-      <EffectComposer disableNormalPass>
+      {/* FIXED: Changed disableNormalPass to enableNormalPass={false} */}
+      <EffectComposer enableNormalPass={false}>
         <Bloom luminanceThreshold={0.4} mipmapBlur intensity={1.2} radius={0.5} />
         <Noise opacity={0.04} />
         <Vignette eskil={false} offset={0.1} darkness={1.1} />

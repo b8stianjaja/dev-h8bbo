@@ -11,10 +11,9 @@ interface FurnitureObjectProps {
 const FurnitureObject: React.FC<FurnitureObjectProps> = ({ item, onClick }) => {
   const { type, position, rotation, state } = item;
   
-  const rotationRad = -(rotation * Math.PI) / 2;
+  const rotationRad = -(rotation * (Math.PI / 4));
 
   const handleClick = (e: any) => {
-    // Critical: Stop propagation so we don't click the floor tile underneath
     e.stopPropagation();
     onClick(item.id);
   };
@@ -42,10 +41,10 @@ const FurnitureObject: React.FC<FurnitureObjectProps> = ({ item, onClick }) => {
               <meshStandardMaterial color="#5c3a21" />
             </mesh>
             
-            {/* Seat - Rounded slightly via geometry if possible, but keeping boxy style for retro look */}
+            {/* Seat */}
             <mesh position={[0, 0.25, 0]} castShadow>
               <boxGeometry args={[0.42, 0.1, 0.42]} />
-              <meshStandardMaterial color="#d63a3a" /> {/* Classic Red */}
+              <meshStandardMaterial color="#d63a3a" /> 
             </mesh>
             
             {/* Backrest */}
@@ -137,7 +136,6 @@ const FurnitureObject: React.FC<FurnitureObjectProps> = ({ item, onClick }) => {
       onPointerOver={() => { document.body.style.cursor = 'pointer'; }}
       onPointerOut={() => { document.body.style.cursor = 'auto'; }}
     >
-      {/* Hitbox helper for smaller items like lamps to make them easier to click */}
       <mesh visible={false}>
          <boxGeometry args={[0.6, 1, 0.6]} />
          <meshBasicMaterial />

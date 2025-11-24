@@ -49,9 +49,31 @@ const Room: React.FC<RoomProps> = memo(({ collisionMap, furniture, onTileClick, 
 
   return (
     <group>
-      {/* Floor Tiles */}
+      {/* Map Rendering: Floor vs Walls based on Collision Map */}
       {collisionMap.map((row, y) =>
         row.map((val, x) => {
+          // If 1, it's a Wall
+          if (val === 1) {
+            return (
+              <group key={`w-${x}-${y}`} position={[x * TILE_SIZE, 0, y * TILE_SIZE]}>
+                 {/* Walls are shifted up to sit on grid */}
+                 <mesh 
+                   position={[0, 1.75, 0]} 
+                   geometry={wallGeo} 
+                   material={[wallRightMaterial, wallLeftMaterial, wallTopMaterial, wallTopMaterial, wallLeftMaterial, wallRightMaterial]} 
+                   castShadow 
+                   receiveShadow 
+                 />
+                 <mesh 
+                   position={[0, 0.075, 0]} 
+                   geometry={baseboardGeo} 
+                   material={baseboardMaterial} 
+                 />
+              </group>
+            );
+          }
+          
+          // Default Walkable (0) or Special (3-Door)
           return (
             <group key={`t-${x}-${y}`} position={[x * TILE_SIZE, 0, y * TILE_SIZE]}>
                <mesh 
@@ -60,6 +82,8 @@ const Room: React.FC<RoomProps> = memo(({ collisionMap, furniture, onTileClick, 
                   position={[0, -0.025, 0]} 
                   receiveShadow 
                />
+               
+               {/* Click Hitbox */}
                <mesh 
                   position={[0, 0.01, 0]}
                   onClick={(e) => { e.stopPropagation(); onTileClick({ x, y }); }}
@@ -69,7 +93,7 @@ const Room: React.FC<RoomProps> = memo(({ collisionMap, furniture, onTileClick, 
                   <meshBasicMaterial />
                </mesh>
 
-               {/* Cursor - Lifted to 0.02 to avoid z-fighting */}
+               {/* Selection Cursor */}
                {selection && selection.x === x && selection.y === y && (
                   <group>
                     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}>
@@ -82,20 +106,6 @@ const Room: React.FC<RoomProps> = memo(({ collisionMap, furniture, onTileClick, 
           );
         })
       )}
-
-      {/* Render Static Walls at the room boundaries */}
-      {Array.from({ length: GRID_SIZE }).map((_, i) => (
-         <group key={`w-back-${i}`} position={[i * TILE_SIZE, 0, 0]}>
-            <mesh position={[0, 1.75, 0]} geometry={wallGeo} material={[wallRightMaterial, wallLeftMaterial, wallTopMaterial, wallTopMaterial, wallLeftMaterial, wallRightMaterial]} castShadow receiveShadow />
-            <mesh position={[0, 0.075, 0]} geometry={baseboardGeo} material={baseboardMaterial} />
-         </group>
-      ))}
-      {Array.from({ length: GRID_SIZE }).map((_, i) => (
-         <group key={`w-left-${i}`} position={[0, 0, i * TILE_SIZE]}>
-             <mesh position={[0, 1.75, 0]} geometry={wallGeo} material={[wallRightMaterial, wallLeftMaterial, wallTopMaterial, wallTopMaterial, wallLeftMaterial, wallRightMaterial]} castShadow receiveShadow />
-             <mesh position={[0, 0.075, 0]} geometry={baseboardGeo} material={baseboardMaterial} />
-         </group>
-      ))}
 
       {furniture.map(item => (
         <FurnitureObject key={item.id} item={item} onClick={onFurnitureClick} />

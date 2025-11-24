@@ -8,20 +8,22 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "three": "^0.160.0",
-    "@react-three/fiber": "^8.15.12",
-    "@react-three/drei": "^9.96.1",
-    "zustand": "^4.5.0",
-    "clsx": "^2.1.0"
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.4.0",
+    "@react-three/postprocessing": "^3.0.4",
+    "clsx": "^2.1.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "three": "^0.181.2",
+    "zustand": "^4.5.0"
   },
   "devDependencies": {
-    "@types/react": "^18.2.43",
+    "@types/react": "^19.2.6",
+    "@types/react-dom": "^19.2.3",
     "@types/three": "^0.160.0",
     "@vitejs/plugin-react": "^4.2.1",
+    "sass": "^1.69.5",
     "typescript": "^5.2.2",
-    "vite": "^5.0.8",
-    "sass": "^1.69.5"
+    "vite": "^5.0.8"
   }
 }

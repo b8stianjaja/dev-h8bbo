@@ -30,12 +30,12 @@ const Avatar: React.FC<AvatarProps> = ({ entity, currentMessage }) => {
     if (!groupRef.current) return;
 
     // --- SMOOTH INTERPOLATION LOGIC ---
-    // We calculate "how far along are we in the current 480ms tick?"
     const now = Date.now();
     const timeSinceMove = now - entity.lastMoveStart;
     
     // Progress 0.0 to 1.0
-    let progress = Math.min(timeSinceMove / TICK_RATE_MS, 1.0);
+    const rawProgress = timeSinceMove / TICK_RATE_MS;
+    const progress = Math.min(rawProgress, 1.0);
     
     // Use progress only if walking, otherwise snap to target
     const smoothProgress = entity.isWalking ? progress : 1; 
@@ -100,7 +100,7 @@ const Avatar: React.FC<AvatarProps> = ({ entity, currentMessage }) => {
     <group> 
       <group ref={groupRef}>
         {/* Simple Shadow Blob */}
-        <mesh rotation={[-Math.PI / 2, 0, 0]}ZF position={[0, 0.02, 0]}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}>
             <circleGeometry args={[0.25, 16]} />
             <meshBasicMaterial color="black" transparent opacity={0.4} />
         </mesh>

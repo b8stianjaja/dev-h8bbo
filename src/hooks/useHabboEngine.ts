@@ -34,7 +34,6 @@ export const useHabboEngine = () => {
   // --- STATE ---
   const [furniture, setFurniture] = useState<FurnitureItem[]>(INITIAL_FURNITURE);
   
-  // Initialize empty, player joins via effect
   const [entities, setEntities] = useState<Entity[]>([
     {
       id: 'bot-1',
@@ -98,11 +97,6 @@ export const useHabboEngine = () => {
     setEntities(prev => [...prev, newEntity]);
     setMyEntityId(newId);
     
-    // Auto walk 
-    setTimeout(() => {
-       moveEntity(newId, { x: 10, y: 8 });
-    }, 500);
-
     return newId;
   }, []);
 
@@ -112,6 +106,9 @@ export const useHabboEngine = () => {
       if (!entity) return prev;
 
       const startPos = entity.isWalking ? entity.nextGridPosition : entity.gridPosition;
+      
+      if (startPos.x === target.x && startPos.y === target.y) return prev;
+
       const path = findPath(startPos, target, collisionMap);
       
       if (path.length === 0) return prev; 
@@ -126,7 +123,7 @@ export const useHabboEngine = () => {
   const interactFurniture = useCallback((id: string) => {
     if (!myEntityId) return;
     
-    const item = furniture.find(f => f.id === id);
+    const item = furnitureRef.current.find(f => f.id === id);
     if (!item) return;
 
     if (item.type === 'lamp_tall') {
@@ -134,17 +131,15 @@ export const useHabboEngine = () => {
     } else if (item.canSit) {
        moveEntity(myEntityId, item.position);
     }
-  }, [furniture, moveEntity, myEntityId]);
+  }, [myEntityId, moveEntity]);
 
 
   // --- GAME LOOP ---
   useFrame((state, delta) => {
-    // Accumulate time for Logic Ticks
     accumulatedTime.current += delta * 1000; 
 
-    // LOGIC TICK: Only runs when accumulated time > TICK_RATE
-    if (accumulatedTime.current >= TICK_RATE_MS) {
-      accumulatedTime.current = 0; // Reset or subtract
+    while (accumulatedTime.current >= TICK_RATE_MS) {
+      accumulatedTime.current -= TICK_RATE_MS;
       
       const shouldUpdate = entitiesRef.current.some(e => e.path.length > 0 || e.isWalking);
 
@@ -153,28 +148,25 @@ export const useHabboEngine = () => {
             let newEntity = { ...entity };
             
             if (newEntity.path.length > 0) {
-              // ARRIVED at previous target, STARTING next move
               newEntity.previousGridPosition = newEntity.nextGridPosition;
               
               const nextStep = newEntity.path[0];
               newEntity.path = newEntity.path.slice(1);
               newEntity.nextGridPosition = nextStep;
-              newEntity.gridPosition = nextStep; // Logic position updates immediately
+              newEntity.gridPosition = nextStep;
               
               newEntity.rotation = getDirection(newEntity.previousGridPosition, newEntity.nextGridPosition);
               
               newEntity.isWalking = true;
               newEntity.isSitting = false; 
               newEntity.height = 0;
-              newEntity.lastMoveStart = Date.now(); // Mark timestamp for lerping
+              newEntity.lastMoveStart = Date.now();
             } else {
-              // STOPPED
               if (newEntity.isWalking) {
                  newEntity.isWalking = false;
                  newEntity.previousGridPosition = newEntity.nextGridPosition;
                  newEntity.lastMoveStart = Date.now();
                  
-                 // Check Sit
                  const furni = furnitureRef.current.find(f => f.position.x === newEntity.gridPosition.x && f.position.y === newEntity.gridPosition.y);
                  if (furni && furni.canSit) {
                    newEntity.isSitting = true;
@@ -188,7 +180,7 @@ export const useHabboEngine = () => {
     }
   });
 
-  return {
+  return useMemo(() => ({
     entities,
     furniture,
     collisionMap,
@@ -196,5 +188,5 @@ export const useHabboEngine = () => {
     joinRoom,
     moveEntity,
     interactFurniture
-  };
+  }), [entities, furniture, collisionMap, myEntityId, joinRoom, moveEntity, interactFurniture]);
 };
