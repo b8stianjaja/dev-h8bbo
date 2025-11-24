@@ -10,18 +10,18 @@ export const WALL_HEIGHT = 3.5;
 export const WALL_THICKNESS = 0.2;
 
 export const COLORS = {
-  // Neon Cyberpunk Palette
-  FLOOR_BASE: '#0f172a',      // Dark Indigo Void
-  FLOOR_HIGHLIGHT: '#1e293b', 
-  FLOOR_SHADOW: '#020617',    
+  // Cozy Modern Palette
+  FLOOR_BASE: '#e2e8f0',      // Light Slate
+  FLOOR_HIGHLIGHT: '#f8fafc', // Almost White
+  FLOOR_SHADOW: '#cbd5e1',    
   
-  WALL_TOP: '#000000',        
-  WALL_LEFT: '#334155',       // Metallic Blue-Grey
-  WALL_RIGHT: '#1e293b',      
+  WALL_TOP: '#94a3b8',        // Grey-ish top
+  WALL_LEFT: '#e5e7eb',       // Bright White/Grey Walls
+  WALL_RIGHT: '#d1d5db',      // Slightly darker for depth
   
-  SELECTION: '#22d3ee',       // Cyan Glow
-  SHADOW: '#000000',
-  BACKGROUND: '#050510',      // Deep Void
+  SELECTION: '#fbbf24',       // Warm Amber selection
+  SHADOW: '#64748b',
+  BACKGROUND: '#f0f9ff',      // Very light airy blue sky
 };
 
 // 0 = Walkable, 1 = Wall
